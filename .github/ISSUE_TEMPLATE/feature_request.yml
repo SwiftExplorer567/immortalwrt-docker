@@ -1,0 +1,22 @@
+name: Feature Request
+description: Propose a new package, module, or enhancement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Feature requests and package suggestions are welcome!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: Is this feature related to a specific use case or limitation?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the package, feature, or architectural change you would like to see.
+    validations:
+      required: true

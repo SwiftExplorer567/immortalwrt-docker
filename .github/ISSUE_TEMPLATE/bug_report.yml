@@ -1,0 +1,40 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in ImmortalWrt Gateway Docker.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Please provide a clear and concise description of the issue.
+  - type: input
+    id: environment
+    attributes:
+      label: Host Environment
+      description: Operating system, hardware platform, and Docker version.
+      placeholder: e.g. Raspberry Pi 5, Debian 12 Bookworm, Docker 27.1.1
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what was expected instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Run `docker compose up -d`
+        2. Access web interface at `http://<IP>`
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs & Output
+      description: Paste any relevant terminal or container log output.
+      render: shell

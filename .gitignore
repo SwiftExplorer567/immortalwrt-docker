@@ -1,0 +1,18 @@
+# Build output & artifacts
+build_output/
+*.tar
+*.tar.gz
+*.tar.zst
+*.tar.xz
+*.ipk
+*.gz
+rootfs/
+rootfs.tar.gz
+
+# Local data & logs
+data/
+*.log
+
+# System & OS
+.DS_Store
+Thumbs.db

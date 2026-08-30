@@ -1,0 +1,56 @@
+#!/bin/sh
+# Custom initial configuration script for ImmortalWrt Docker Gateway
+# Executed once on first boot
+
+# Timezone & System
+uci set system.@system[0].hostname='ImmortalWrt'
+uci set system.@system[0].zonename='Europe/Istanbul'
+uci set system.@system[0].timezone='<+03>-3'
+uci commit system
+
+# LuCI UI & Language defaults
+uci set luci.main.lang='auto'
+uci set luci.main.mediaurlbase='/luci-static/argon'
+uci commit luci
+
+# Network LAN default (Macvlan Gateway Mode)
+# Default IP: 192.168.1.2, Netmask: 255.255.255.0, Gateway: 192.168.1.1
+uci set network.lan=interface
+uci set network.lan.proto='static'
+uci set network.lan.device='eth0'
+uci set network.lan.ipaddr='192.168.1.2'
+uci set network.lan.netmask='255.255.255.0'
+uci set network.lan.gateway='192.168.1.1'
+uci set network.lan.dns='1.1.1.1 8.8.8.8'
+uci commit network
+
+# Firewall defaults for Bypass Gateway
+uci set firewall.@defaults[0].forward='ACCEPT'
+uci set firewall.@zone[0].forward='ACCEPT'
+uci set firewall.@zone[0].masq='1'
+uci commit firewall
+
+# OpenClash directories & permissions
+mkdir -p /etc/openclash/core /etc/openclash/config /etc/openclash/backup
+chmod -R 755 /etc/openclash
+
+# TurboACC default setup (if available)
+if [ -f /etc/config/turboacc ]; then
+    uci set turboacc.config.bbr_cca='1'
+    uci set turboacc.config.full_cone_nat='1'
+    uci commit turboacc
+fi
+
+# TTYD Web Terminal default setup
+if [ -f /etc/config/ttyd ]; then
+    uci set ttyd.@ttyd[0].interface='eth0'
+    uci commit ttyd
+fi
+
+# Allow SSH / Dropbear on LAN
+uci set dropbear.@dropbear[0].Interface='lan'
+uci set dropbear.@dropbear[0].PasswordAuth='on'
+uci set dropbear.@dropbear[0].RootPasswordAuth='on'
+uci commit dropbear
+
+exit 0

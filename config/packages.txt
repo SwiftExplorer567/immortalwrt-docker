@@ -1,0 +1,65 @@
+# ==========================================
+# Core System & Utilities
+# ==========================================
+base-files
+ca-bundle
+curl
+bash
+coreutils
+coreutils-nohup
+tar
+gzip
+unzip
+bind-dig
+htop
+nano
+iperf3
+ip-full
+ipset
+ruby
+ruby-yaml
+
+# ==========================================
+# LuCI Web Interface & Argon Theme
+# ==========================================
+luci
+luci-compat
+luci-theme-argon
+luci-app-argon-config
+luci-i18n-base-tr
+-luci-i18n-base-zh-cn
+-default-settings-chn
+
+# ==========================================
+# SSL / Crypto (OpenSSL stack)
+# ==========================================
+-libustream-mbedtls
+luci-ssl-openssl
+
+# ==========================================
+# Network, DNS & Firewall4 (nftables)
+# ==========================================
+-dnsmasq
+dnsmasq-full
+kmod-tun
+kmod-nft-core
+kmod-nft-nat
+nftables
+kmod-inet-diag
+kmod-tcp-bbr
+
+# ==========================================
+# VPN (WireGuard)
+# ==========================================
+luci-proto-wireguard
+wireguard-tools
+
+# ==========================================
+# Management & Traffic Monitoring
+# ==========================================
+luci-app-ttyd
+luci-i18n-ttyd-tr
+luci-app-nlbwmon
+luci-i18n-nlbwmon-tr
+luci-app-ddns
+luci-i18n-ddns-tr

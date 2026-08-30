@@ -1,0 +1,30 @@
+services:
+  immortalwrt:
+    image: ghcr.io/swiftexplorer567/immortalwrt-docker:latest
+    container_name: immortalwrt
+    privileged: true
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    networks:
+      macvlan_lan:
+        # Change to match your local network IP (e.g. 192.168.1.2)
+        ipv4_address: 192.168.1.2
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - ./data/openclash/config:/etc/openclash/config
+      - ./data/config:/etc/config
+
+networks:
+  macvlan_lan:
+    driver: macvlan
+    driver_opts:
+      # Replace 'eth0' with your host network interface (e.g. eth0, enp3s0, end0)
+      parent: eth0
+    ipam:
+      config:
+        # Match your router's subnet and gateway
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+          ip_range: 192.168.1.2/32
