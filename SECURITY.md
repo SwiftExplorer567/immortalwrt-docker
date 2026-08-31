@@ -7,9 +7,7 @@ We actively provide security patches, upstream ImmortalWrt updates, and weekly a
 | Version | Supported          |
 | ------- | ------------------ |
 | 25.12.x | :white_check_mark: |
-| 24.10.x | :white_check_mark: |
-| 23.05.x | :white_check_mark: |
-| < 23.05 | :x:                |
+| < 25.12 | :x:                |
 
 ## Reporting a Vulnerability
 

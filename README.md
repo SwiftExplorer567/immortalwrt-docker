@@ -270,15 +270,13 @@ docker build -t immortalwrt-gateway:local .
 * **Docker Hub:** [`hasanjws/immortalwrt-gateway`](https://hub.docker.com/r/hasanjws/immortalwrt-gateway)
 * **GitHub Container Registry:** [`ghcr.io/swiftexplorer567/immortalwrt-docker`](https://github.com/SwiftExplorer567/immortalwrt-docker/pkgs/container/immortalwrt-docker)
 
-### Supported Release Channels
+### Official Release Tags
 
-| Release Stream | Supported Docker Tags | Base Release | Description |
-|---|---|---|---|
-| **Latest Stable** | `:latest`, `:stable`, `:25.12.1`, `:25` | ImmortalWrt 25.12.1 | **Recommended for production.** Current official release with modern kernel and packages for 24/7 homelab gateways. |
-| **Modern Stable** | `:24.10.6`, `:24.10`, `:24` | ImmortalWrt 24.10.6 | Modern stable release with native 16KB/4KB multi-page kernel compatibility. |
-| **LTS (Long Term)** | `:lts`, `:23.05.4`, `:23` | ImmortalWrt 23.05.4 | Battle-tested Long Term Support release for older routers and legacy systems. |
+| Docker Tag | Target Base | Description |
+|---|---|---|
+| **`:latest`**, **`:stable`**, **`:25.12.1`**, **`:25`** | **ImmortalWrt 25.12.1 (Latest)** | **Official Production Release.** Turnkey high-performance gateway container with Linux 6.6, nftables Firewall4, Argon theme, and embedded Mihomo Meta core. |
 
-Automated build workflows execute daily at 01:00 UTC to track upstream ImmortalWrt updates across all 3 supported streams, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
+Automated build workflows execute daily at 01:00 UTC to track upstream ImmortalWrt 25.x releases, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
 
 ---
 
