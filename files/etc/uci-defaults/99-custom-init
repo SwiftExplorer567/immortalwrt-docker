@@ -15,15 +15,18 @@ uci set luci.themes.Argon='/luci-static/argon'
 uci commit luci
 
 # Network LAN default (Macvlan Gateway Mode)
-# Default IP: 192.168.1.2, Netmask: 255.255.255.0, Gateway: 192.168.1.1
-uci set network.lan=interface
-uci set network.lan.proto='static'
-uci set network.lan.device='eth0'
-uci set network.lan.ipaddr='192.168.1.2'
-uci set network.lan.netmask='255.255.255.0'
-uci set network.lan.gateway='192.168.1.1'
-uci set network.lan.dns='1.1.1.1 8.8.8.8'
-uci commit network
+# Only apply default IP if network.lan.ipaddr is not already configured (preserves persistent volume configs)
+CURRENT_LAN_IP=$(uci -q get network.lan.ipaddr || true)
+if [ -z "$CURRENT_LAN_IP" ]; then
+    uci set network.lan=interface
+    uci set network.lan.proto='static'
+    uci set network.lan.device='eth0'
+    uci set network.lan.ipaddr='192.168.1.2'
+    uci set network.lan.netmask='255.255.255.0'
+    uci set network.lan.gateway='192.168.1.1'
+    uci set network.lan.dns='1.1.1.1 8.8.8.8'
+    uci commit network
+fi
 
 # Firewall defaults for Bypass Gateway
 uci set firewall.@defaults[0].forward='ACCEPT'
