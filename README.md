@@ -270,6 +270,13 @@ docker build -t immortalwrt-gateway:local .
 * **Docker Hub:** [`hasanjws/immortalwrt-gateway`](https://hub.docker.com/r/hasanjws/immortalwrt-gateway)
 * **GitHub Container Registry:** [`ghcr.io/swiftexplorer567/immortalwrt-docker`](https://github.com/SwiftExplorer567/immortalwrt-docker/pkgs/container/immortalwrt-docker)
 
+### Release Channels
+
+| Channel | Image Tag | Target Base | Description |
+|---|---|---|---|
+| **Stable (Production)** | `:latest`, `:stable`, `:23.05.4` | ImmortalWrt 23.05 LTS | Battle-tested, rock-solid release recommended for 24/7 homelab gateways. |
+| **Edge (Developer Preview)** | `:edge`, `:beta` | Upstream Latest Preview | Bleeding-edge upstream builds for testing newer kernels and features. |
+
 Automated build workflows execute daily to track upstream releases and weekly on Sunday at 03:00 UTC, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
 
 ---
