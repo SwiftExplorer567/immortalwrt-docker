@@ -270,15 +270,15 @@ docker build -t immortalwrt-gateway:local .
 * **Docker Hub:** [`hasanjws/immortalwrt-gateway`](https://hub.docker.com/r/hasanjws/immortalwrt-gateway)
 * **GitHub Container Registry:** [`ghcr.io/swiftexplorer567/immortalwrt-docker`](https://github.com/SwiftExplorer567/immortalwrt-docker/pkgs/container/immortalwrt-docker)
 
-### Release Channels
+### Supported Release Channels
 
-| Channel | Image Tag | Target Base | Description |
+| Release Stream | Supported Docker Tags | Base Release | Description |
 |---|---|---|---|
-| **Stable (Production)** | `:latest`, `:stable`, `:25.12.1` | ImmortalWrt 25.12 (Latest) | Current official release with modern kernel and packages for 24/7 homelab gateways. |
-| **LTS (Legacy)** | `:23.05`, `:23.05.4`, `:lts` | ImmortalWrt 23.05 LTS | Battle-tested legacy LTS release. |
-| **Edge (Preview)** | `:edge`, `:beta` | Upstream Snapshot | Bleeding-edge snapshot builds for testing upcoming features. |
+| **Latest Stable** | `:latest`, `:stable`, `:25.12.1`, `:25` | ImmortalWrt 25.12.1 | **Recommended for production.** Current official release with modern kernel and packages for 24/7 homelab gateways. |
+| **Modern Stable** | `:24.10.6`, `:24.10`, `:24` | ImmortalWrt 24.10.6 | Modern stable release with native 16KB/4KB multi-page kernel compatibility. |
+| **LTS (Long Term)** | `:lts`, `:23.05.4`, `:23` | ImmortalWrt 23.05.4 | Battle-tested Long Term Support release for older routers and legacy systems. |
 
-Automated build workflows execute daily to track upstream releases and weekly on Sunday at 03:00 UTC, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
+Automated build workflows execute daily at 01:00 UTC to track upstream ImmortalWrt updates across all 3 supported streams, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
 
 ---
 

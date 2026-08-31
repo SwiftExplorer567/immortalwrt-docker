@@ -11,17 +11,19 @@ on:
   workflow_dispatch:
     inputs:
       immortalwrt_version:
-        description: "ImmortalWrt Release Version (e.g. 23.05.4, auto)"
+        description: "ImmortalWrt Release Version (e.g. 25.12.1, 24.10.6, 23.05.4, auto)"
         required: false
         default: "auto"
       channel:
-        description: "Release Channel (stable = latest/stable, edge = edge/beta)"
+        description: "Release Channel (stable = v25/latest, 24 = v24, lts = v23 LTS)"
         required: false
-        default: "stable"
+        default: "auto"
         type: choice
         options:
+          - "auto"
           - "stable"
-          - "edge"
+          - "24"
+          - "lts"
 
 permissions:
   contents: read
@@ -54,7 +56,7 @@ jobs:
       - name: Determine Version & Channel
         id: ver
         run: |
-          CHANNEL="${{ github.event.inputs.channel || 'stable' }}"
+          CHANNEL="${{ github.event.inputs.channel || 'auto' }}"
           TARGET_VER="${{ github.event.inputs.immortalwrt_version }}"
           
           if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" = "auto" ]; then
@@ -67,6 +69,19 @@ jobs:
               TARGET_VER="$UPSTREAM_VER"
             else
               TARGET_VER="${{ env.DEFAULT_VERSION }}"
+            fi
+          fi
+          
+          MAJOR=$(echo "${TARGET_VER}" | cut -d. -f1)
+          if [ "$CHANNEL" = "auto" ]; then
+            if [ "$MAJOR" = "25" ]; then
+              CHANNEL="stable"
+            elif [ "$MAJOR" = "24" ]; then
+              CHANNEL="24"
+            elif [ "$MAJOR" = "23" ]; then
+              CHANNEL="lts"
+            else
+              CHANNEL="stable"
             fi
           fi
           
@@ -147,7 +162,7 @@ jobs:
       - name: Determine Version & Channel
         id: ver
         run: |
-          CHANNEL="${{ github.event.inputs.channel || 'stable' }}"
+          CHANNEL="${{ github.event.inputs.channel || 'auto' }}"
           TARGET_VER="${{ github.event.inputs.immortalwrt_version }}"
           
           if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" = "auto" ]; then
@@ -160,6 +175,19 @@ jobs:
               TARGET_VER="$UPSTREAM_VER"
             else
               TARGET_VER="${{ env.DEFAULT_VERSION }}"
+            fi
+          fi
+          
+          MAJOR=$(echo "${TARGET_VER}" | cut -d. -f1)
+          if [ "$CHANNEL" = "auto" ]; then
+            if [ "$MAJOR" = "25" ]; then
+              CHANNEL="stable"
+            elif [ "$MAJOR" = "24" ]; then
+              CHANNEL="24"
+            elif [ "$MAJOR" = "23" ]; then
+              CHANNEL="lts"
+            else
+              CHANNEL="stable"
             fi
           fi
           
@@ -193,51 +221,38 @@ jobs:
           DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          MAJOR=$(echo "${{ env.VERSION }}" | cut -d. -f1)
+          MINOR=$(echo "${{ env.VERSION }}" | cut -d. -f1-2)
           
-          echo "==> Creating GHCR Multi-Arch Manifests (Version: ${{ env.VERSION }}, Channel: ${{ env.CHANNEL }})..."
-          docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}" \
-            "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
-            "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
-
-          if [ "${{ env.CHANNEL }}" = "stable" ]; then
-            docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:latest" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
-            docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:stable" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
-          else
-            docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:edge" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
-            docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:beta" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
-              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
+          TAGS=("${{ env.VERSION }}")
+          
+          if [ "${{ env.CHANNEL }}" = "stable" ] || [ "$MAJOR" = "25" ]; then
+            TAGS+=("latest" "stable" "25" "${MINOR}")
+          elif [ "${{ env.CHANNEL }}" = "24" ] || [ "$MAJOR" = "24" ]; then
+            TAGS+=("24" "${MINOR}")
+          elif [ "${{ env.CHANNEL }}" = "lts" ] || [ "$MAJOR" = "23" ]; then
+            TAGS+=("lts" "23" "${MINOR}")
           fi
+          
+          echo "==> Target Multi-Arch Tags: ${TAGS[*]}"
+          
+          for tag in "${TAGS[@]}"; do
+            echo "Publishing GHCR manifest: ${tag}..."
+            docker buildx imagetools create -t "ghcr.io/${REPO_LOWER}:${tag}" \
+              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-arm64" \
+              "ghcr.io/${REPO_LOWER}:${{ env.VERSION }}-amd64"
+          done
 
           if [ -n "$DH_USER" ]; then
             DH_USER_LOWER=$(echo "$DH_USER" | tr '[:upper:]' '[:lower:]')
             echo "==> Creating Docker Hub Multi-Arch Manifests..."
             
-            docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}" \
-              "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64" \
-              "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64"
-
-            if [ "${{ env.CHANNEL }}" = "stable" ]; then
-              docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:latest" \
+            for tag in "${TAGS[@]}"; do
+              echo "Publishing Docker Hub manifest: ${tag}..."
+              docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${tag}" \
                 "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64" \
                 "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64"
-              docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:stable" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64"
-            else
-              docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:edge" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64"
-              docker buildx imagetools create -t "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:beta" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64" \
-                "${DH_USER_LOWER}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64"
-            fi
+            done
           fi
 
       - name: Sync Docker Hub Description & Overview
