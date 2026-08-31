@@ -10,28 +10,28 @@ permissions:
   contents: write
 
 jobs:
-  check-and-trigger:
-    name: Check Upstream Release
+  check-stable-release:
+    name: Check Stable (LTS) Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Fetch Latest ImmortalWrt Version
+      - name: Fetch Latest Stable Version
         id: check
         run: |
-          echo "==> Checking official ImmortalWrt download repository..."
+          echo "==> Checking official ImmortalWrt download repository for Stable (23.05.x)..."
           LATEST_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
             grep -oE 'href="23\.05\.[0-9]+/' | \
             sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
             sort -V | tail -n 1)
 
           if [ -z "${LATEST_VER}" ]; then
-            echo "Error: Could not retrieve upstream version list."
+            echo "Error: Could not retrieve stable version list."
             exit 1
           fi
 
-          echo "==> Latest Upstream Version Found: ${LATEST_VER}"
+          echo "==> Latest Stable Version Found: ${LATEST_VER}"
           echo "latest_version=${LATEST_VER}" >> $GITHUB_OUTPUT
 
       - name: Check if Image Exists on GHCR
@@ -42,25 +42,76 @@ jobs:
           TARGET_VER: ${{ steps.check.outputs.latest_version }}
         run: |
           REPO_LOWER=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
-          
-          # Check if tag already exists in GHCR
           EXISTS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
             "https://ghcr.io/v2/${REPO_LOWER}/manifests/${TARGET_VER}")
           
           if [ "$EXISTS_CODE" = "200" ] || [ "$EXISTS_CODE" = "307" ]; then
-            echo "Version ${TARGET_VER} is already built on GHCR (HTTP $EXISTS_CODE). No build needed."
+            echo "Stable version ${TARGET_VER} already exists on GHCR. No build needed."
             echo "needs_build=false" >> $GITHUB_OUTPUT
           else
-            echo "New version ${TARGET_VER} not found on GHCR (HTTP $EXISTS_CODE). Triggering build!"
+            echo "New stable version ${TARGET_VER} found! Triggering build."
             echo "needs_build=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Trigger Build & Publish Workflow
+      - name: Trigger Stable Build & Publish Workflow
         if: steps.ghcr_check.outputs.needs_build == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VER: ${{ steps.check.outputs.latest_version }}
         run: |
-          echo "==> Triggering build-and-publish.yml for version ${NEW_VER}..."
-          gh workflow run build-and-publish.yml -f immortalwrt_version="${NEW_VER}"
-          echo "Successfully dispatched build workflow."
+          echo "==> Triggering build-and-publish.yml for Stable version ${NEW_VER}..."
+          gh workflow run build-and-publish.yml -f channel="stable" -f immortalwrt_version="${NEW_VER}"
+          echo "Successfully dispatched stable build workflow."
+
+  check-edge-release:
+    name: Check Edge (Preview) Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Latest Edge Version
+        id: check
+        run: |
+          echo "==> Checking official ImmortalWrt download repository for Edge/Preview..."
+          LATEST_EDGE=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
+            grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
+            sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
+            sort -V | tail -n 1)
+
+          if [ -z "${LATEST_EDGE}" ]; then
+            echo "Error: Could not retrieve edge version list."
+            exit 1
+          fi
+
+          echo "==> Latest Edge Version Found: ${LATEST_EDGE}"
+          echo "latest_edge_version=${LATEST_EDGE}" >> $GITHUB_OUTPUT
+
+      - name: Check if Edge Image Exists on GHCR
+        id: ghcr_check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ github.repository }}
+          TARGET_VER: ${{ steps.check.outputs.latest_edge_version }}
+        run: |
+          REPO_LOWER=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+          EXISTS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://ghcr.io/v2/${REPO_LOWER}/manifests/${TARGET_VER}")
+          
+          if [ "$EXISTS_CODE" = "200" ] || [ "$EXISTS_CODE" = "307" ]; then
+            echo "Edge version ${TARGET_VER} already exists on GHCR. No build needed."
+            echo "needs_build=false" >> $GITHUB_OUTPUT
+          else
+            echo "New edge version ${TARGET_VER} found! Triggering build."
+            echo "needs_build=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Edge Build & Publish Workflow
+        if: steps.ghcr_check.outputs.needs_build == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VER: ${{ steps.check.outputs.latest_edge_version }}
+        run: |
+          echo "==> Triggering build-and-publish.yml for Edge version ${NEW_VER}..."
+          gh workflow run build-and-publish.yml -f channel="edge" -f immortalwrt_version="${NEW_VER}"
+          echo "Successfully dispatched edge build workflow."
