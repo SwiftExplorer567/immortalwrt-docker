@@ -56,10 +56,12 @@ uci commit dropbear
 
 # uhttpd Web Server Defaults (HTTP Port 80)
 if [ -f /etc/config/uhttpd ]; then
-    uci set uhttpd.main.listen_http='0.0.0.0:80'
+    uci -q delete uhttpd.main.listen_http
+    uci add_list uhttpd.main.listen_http='0.0.0.0:80'
     uci add_list uhttpd.main.listen_http='[::]:80'
-    uci set uhttpd.main.redirect_https='0'
+    uci -q set uhttpd.main.redirect_https='0'
     uci commit uhttpd
+    /etc/init.d/uhttpd enable 2>/dev/null || true
 fi
 
 exit 0

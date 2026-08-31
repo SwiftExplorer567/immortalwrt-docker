@@ -187,6 +187,8 @@ services:
       - /lib/modules:/lib/modules:ro
       - ./data/openclash/config:/etc/openclash/config
       - ./data/config:/etc/config
+      - ./data/shadow:/etc/shadow
+      - ./data/dropbear:/etc/dropbear
 
 networks:
   macvlan_lan:

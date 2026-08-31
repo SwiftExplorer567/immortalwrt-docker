@@ -117,6 +117,8 @@ services:
       - /lib/modules:/lib/modules:ro
       - ./data/openclash/config:/etc/openclash/config
       - ./data/config:/etc/config
+      - ./data/shadow:/etc/shadow
+      - ./data/dropbear:/etc/dropbear
 
 networks:
   macvlan_lan:
@@ -249,5 +251,5 @@ If you want network-wide ad blocking combined with OpenClash bypass routing:
 #### Q2: Does running ImmortalWrt in Docker have performance penalties compared to bare metal?
 **No.** Docker utilizes native Linux network namespaces and kernel cgroups with negligible overhead (<1% CPU difference). Throughput on ARM64 (Raspberry Pi 4/5) and x86_64 (Intel N100) easily saturates Gigabit LAN speeds.
 
-#### Q3: How do I persist my OpenClash subscriptions and configurations?
-Ensure the volume mappings `./data/openclash/config:/etc/openclash/config` and `./data/config:/etc/config` are specified in your `docker-compose.yml`. All configurations will survive container upgrades and reboots.
+#### Q3: How do I persist my configurations, root password, and SSH keys?
+Ensure the volume mappings `./data/openclash/config:/etc/openclash/config`, `./data/config:/etc/config`, `./data/shadow:/etc/shadow`, and `./data/dropbear:/etc/dropbear` are specified in your `docker-compose.yml`. All configurations, LuCI passwords, and SSH keys will survive container upgrades and reboots.
