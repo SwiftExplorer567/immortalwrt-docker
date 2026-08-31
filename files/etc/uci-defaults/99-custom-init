@@ -11,6 +11,7 @@ uci commit system
 # LuCI UI & Language defaults
 uci set luci.main.lang='auto'
 uci set luci.main.mediaurlbase='/luci-static/argon'
+uci set luci.themes.Argon='/luci-static/argon'
 uci commit luci
 
 # Network LAN default (Macvlan Gateway Mode)
