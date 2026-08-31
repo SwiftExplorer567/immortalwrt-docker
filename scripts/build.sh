@@ -89,24 +89,16 @@ echo "==> Preparing files overlay..."
 cp -r "${REPO_ROOT}/files/"* "${IB_DIR}/files/" 2>/dev/null || true
 chmod +x "${IB_DIR}/files/etc/uci-defaults/"* 2>/dev/null || true
 
-# 3. Download latest OpenClash package (APK for v25+ / IPK for v24 & v23)
+# 3. Download latest OpenClash IPK
 echo "==> Fetching latest OpenClash package..."
-OPENCLASH_RELEASE_JSON=$(curl -sSL "${AUTH_HEADER[@]}" https://api.github.com/repos/vernesong/OpenClash/releases/latest)
-OPENCLASH_APK_URL=$(echo "${OPENCLASH_RELEASE_JSON}" | grep -o 'https://[^"]*luci-app-openclash[^"]*\.apk' | head -n 1)
-OPENCLASH_IPK_URL=$(echo "${OPENCLASH_RELEASE_JSON}" | grep -o 'https://[^"]*luci-app-openclash[^"]*\.ipk' | head -n 1)
+OPENCLASH_URL=$(curl -sSL "${AUTH_HEADER[@]}" https://api.github.com/repos/vernesong/OpenClash/releases/latest | \
+    grep -o 'https://[^"]*luci-app-openclash[^"]*\.ipk' | head -n 1)
 
-if [ -n "${OPENCLASH_APK_URL}" ]; then
-    echo "    Downloading OpenClash APK: ${OPENCLASH_APK_URL}"
-    curl -sSL "${OPENCLASH_APK_URL}" -o "${IB_DIR}/packages/luci-app-openclash.apk"
-fi
-
-if [ -n "${OPENCLASH_IPK_URL}" ]; then
-    echo "    Downloading OpenClash IPK: ${OPENCLASH_IPK_URL}"
-    curl -sSL "${OPENCLASH_IPK_URL}" -o "${IB_DIR}/packages/luci-app-openclash.ipk"
-fi
-
-if [ -z "${OPENCLASH_APK_URL}" ] && [ -z "${OPENCLASH_IPK_URL}" ]; then
-    echo "Warning: Could not fetch OpenClash release URLs via API, trying master branch fallback..."
+if [ -n "${OPENCLASH_URL}" ]; then
+    echo "    Downloading: ${OPENCLASH_URL}"
+    curl -sSL "${OPENCLASH_URL}" -o "${IB_DIR}/packages/luci-app-openclash.ipk"
+else
+    echo "Warning: Could not fetch OpenClash latest release URL directly via API, trying master branch fallback..."
     curl -sSL "https://raw.githubusercontent.com/vernesong/OpenClash/package/luci-app-openclash.ipk" -o "${IB_DIR}/packages/luci-app-openclash.ipk" || true
 fi
 
