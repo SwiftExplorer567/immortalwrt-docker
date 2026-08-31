@@ -54,4 +54,12 @@ uci set dropbear.@dropbear[0].PasswordAuth='on'
 uci set dropbear.@dropbear[0].RootPasswordAuth='on'
 uci commit dropbear
 
+# uhttpd Web Server Defaults (HTTP Port 80)
+if [ -f /etc/config/uhttpd ]; then
+    uci set uhttpd.main.listen_http='0.0.0.0:80'
+    uci add_list uhttpd.main.listen_http='[::]:80'
+    uci set uhttpd.main.redirect_https='0'
+    uci commit uhttpd
+fi
+
 exit 0
