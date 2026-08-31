@@ -274,8 +274,9 @@ docker build -t immortalwrt-gateway:local .
 
 | Channel | Image Tag | Target Base | Description |
 |---|---|---|---|
-| **Stable (Production)** | `:latest`, `:stable`, `:23.05.4` | ImmortalWrt 23.05 LTS | Battle-tested, rock-solid release recommended for 24/7 homelab gateways. |
-| **Edge (Developer Preview)** | `:edge`, `:beta` | Upstream Latest Preview | Bleeding-edge upstream builds for testing newer kernels and features. |
+| **Stable (Production)** | `:latest`, `:stable`, `:25.12.1` | ImmortalWrt 25.12 (Latest) | Current official release with modern kernel and packages for 24/7 homelab gateways. |
+| **LTS (Legacy)** | `:23.05`, `:23.05.4`, `:lts` | ImmortalWrt 23.05 LTS | Battle-tested legacy LTS release. |
+| **Edge (Preview)** | `:edge`, `:beta` | Upstream Snapshot | Bleeding-edge snapshot builds for testing upcoming features. |
 
 Automated build workflows execute daily to track upstream releases and weekly on Sunday at 03:00 UTC, publishing multi-arch manifests (`linux/arm64` and `linux/amd64`).
 

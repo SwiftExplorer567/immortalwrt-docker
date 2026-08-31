@@ -28,7 +28,7 @@ permissions:
   packages: write
 
 env:
-  DEFAULT_VERSION: "23.05.4"
+  DEFAULT_VERSION: "25.12.1"
   IMAGE_NAME: immortalwrt-gateway
 
 jobs:
@@ -58,19 +58,10 @@ jobs:
           TARGET_VER="${{ github.event.inputs.immortalwrt_version }}"
           
           if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" = "auto" ]; then
-            if [ "$CHANNEL" = "edge" ]; then
-              # Get latest available release overall (including newer preview branches)
-              UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
-                grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
-                sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
-                sort -V | tail -n 1)
-            else
-              # Filter for stable tested releases (23.05.x series)
-              UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
-                grep -oE 'href="23\.05\.[0-9]+/' | \
-                sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
-                sort -V | tail -n 1)
-            fi
+            UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
+              grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
+              sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
+              sort -V | tail -n 1)
             
             if [ -n "$UPSTREAM_VER" ]; then
               TARGET_VER="$UPSTREAM_VER"
@@ -160,17 +151,10 @@ jobs:
           TARGET_VER="${{ github.event.inputs.immortalwrt_version }}"
           
           if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" = "auto" ]; then
-            if [ "$CHANNEL" = "edge" ]; then
-              UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
-                grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
-                sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
-                sort -V | tail -n 1)
-            else
-              UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
-                grep -oE 'href="23\.05\.[0-9]+/' | \
-                sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
-                sort -V | tail -n 1)
-            fi
+            UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
+              grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
+              sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
+              sort -V | tail -n 1)
             
             if [ -n "$UPSTREAM_VER" ]; then
               TARGET_VER="$UPSTREAM_VER"
