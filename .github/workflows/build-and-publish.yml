@@ -48,8 +48,9 @@ jobs:
         run: |
           TARGET_VER="${{ github.event.inputs.immortalwrt_version }}"
           if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" = "auto" ]; then
+            # Filter for stable tested releases (23.05.x series)
             UPSTREAM_VER=$(curl -sSL https://downloads.immortalwrt.org/releases/ | \
-              grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/' | \
+              grep -oE 'href="23\.05\.[0-9]+/' | \
               sed -E 's/href="([0-9]+\.[0-9]+\.[0-9]+)\//\1/' | \
               sort -V | tail -n 1)
             if [ -n "$UPSTREAM_VER" ]; then
