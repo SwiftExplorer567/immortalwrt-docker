@@ -7,7 +7,7 @@ set -eo pipefail
 # ==============================================================================
 
 TARGET="${1:-armsr/armv8}"
-VERSION="${2:-23.05.4}"
+VERSION="${2:-25.12.1}"
 OUTPUT_DIR="${3:-./build_output}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 

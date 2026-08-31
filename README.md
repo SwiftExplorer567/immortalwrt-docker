@@ -2,14 +2,14 @@
 
 # ImmortalWrt Gateway for Docker
 
-A turnkey, high-performance **ImmortalWrt 23.05** multi-architecture bypass and sidecar gateway container.  
+A turnkey, high-performance **ImmortalWrt 25.12** multi-architecture bypass and sidecar gateway container.  
 Pre-integrated with **OpenClash (Mihomo Meta Core)**, WireGuard protocol, **Argon LuCI Interface**, and `nftables` Firewall4.
 
 <p align="center">
   <a href="https://github.com/SwiftExplorer567/immortalwrt-docker/actions/workflows/build-and-publish.yml"><img src="https://img.shields.io/github/actions/workflow/status/SwiftExplorer567/immortalwrt-docker/build-and-publish.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=Build" alt="Build Status" /></a>
   <a href="https://hub.docker.com/r/hasanjws/immortalwrt-gateway"><img src="https://img.shields.io/docker/pulls/hasanjws/immortalwrt-gateway?style=flat-square&logo=docker&logoColor=white&color=0db7ed&label=Docker%20Pulls" alt="Docker Pulls" /></a>
   <a href="https://hub.docker.com/r/hasanjws/immortalwrt-gateway"><img src="https://img.shields.io/docker/image-size/hasanjws/immortalwrt-gateway/latest?style=flat-square&logo=docker&logoColor=white&label=Image%20Size" alt="Docker Image Size" /></a>
-  <a href="https://hub.docker.com/r/hasanjws/immortalwrt-gateway"><img src="https://img.shields.io/badge/Version-23.05.4-blue?style=flat-square&logo=openwrt&logoColor=white" alt="Version" /></a>
+  <a href="https://hub.docker.com/r/hasanjws/immortalwrt-gateway"><img src="https://img.shields.io/badge/Version-25.12.1-blue?style=flat-square&logo=openwrt&logoColor=white" alt="Version" /></a>
 </p>
 
 <p align="center">
@@ -253,12 +253,12 @@ sudo apt-get update && sudo apt-get install -y \
 chmod +x scripts/build.sh
 
 # Option A: Build for ARM64 (Raspberry Pi / SBCs)
-./scripts/build.sh armsr/armv8 23.05.4 ./build_output
+./scripts/build.sh armsr/armv8 25.12.1 ./build_output
 cp ./build_output/rootfs-armsr-armv8.tar.gz ./rootfs.tar.gz
 docker build -t immortalwrt-gateway:local .
 
 # Option B: Build for x86_64 / AMD64 (Mini PCs / Proxmox / VMs)
-./scripts/build.sh x86/64 23.05.4 ./build_output
+./scripts/build.sh x86/64 25.12.1 ./build_output
 cp ./build_output/rootfs-x86-64.tar.gz ./rootfs.tar.gz
 docker build -t immortalwrt-gateway:local .
 ```
