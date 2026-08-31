@@ -2,6 +2,11 @@
 # Core System & Utilities
 # ==========================================
 base-files
+libc
+libgcc
+libpthread
+librt
+libatomic
 ca-bundle
 curl
 bash
