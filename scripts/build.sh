@@ -117,16 +117,19 @@ if [ -n "${MIHOMO_URL}" ]; then
     cp "${IB_DIR}/files/etc/openclash/core/clash_meta" "${IB_DIR}/files/etc/openclash/core/clash" || true
 else
     echo "Warning: Could not fetch Mihomo core automatically. It will be downloaded on first launch."
-fi
+# 5. Download wrtbwmon & luci-app-wrtbwmon packages
+echo "==> Fetching latest wrtbwmon & luci-app-wrtbwmon..."
+curl -sSL -L "https://github.com/brvphoenix/wrtbwmon/releases/download/v1.2.1-3/wrtbwmon_1.2.1-3_all.ipk" -o "${IB_DIR}/packages/wrtbwmon.ipk" || true
+curl -sSL -L "https://github.com/brvphoenix/luci-app-wrtbwmon/releases/download/release-2.0.13/luci-app-wrtbwmon_2.0.13_all.ipk" -o "${IB_DIR}/packages/luci-app-wrtbwmon.ipk" || true
 
-# 5. Prepare Package List
+# 6. Prepare Package List
 echo "==> Generating package list..."
 PACKAGES_LIST=$(grep -v '^#' "${REPO_ROOT}/config/packages.txt" | grep -v '^[[:space:]]*$' | tr '\n' ' ')
-PACKAGES="${PACKAGES_LIST} luci-app-openclash"
+PACKAGES="${PACKAGES_LIST} luci-app-openclash wrtbwmon luci-app-wrtbwmon"
 
 echo "    Packages: ${PACKAGES}"
 
-# 6. Build RootFS using ImageBuilder
+# 7. Build RootFS using ImageBuilder
 echo "==> Building Image with ImageBuilder..."
 make -C "${IB_DIR}" image \
     PROFILE="${PROFILE}" \

@@ -93,6 +93,11 @@ fi
 if [ -f /etc/init.d/netdata ]; then
     /etc/init.d/netdata enable 2>/dev/null || true
 fi
+if [ -f /etc/init.d/wrtbwmon ]; then
+    uci set wrtbwmon.general.interface='eth0' 2>/dev/null || true
+    uci commit wrtbwmon 2>/dev/null || true
+    /etc/init.d/wrtbwmon enable 2>/dev/null || true
+fi
 
 # SQM Smart Queue Management Default
 if [ -f /etc/init.d/sqm ]; then
