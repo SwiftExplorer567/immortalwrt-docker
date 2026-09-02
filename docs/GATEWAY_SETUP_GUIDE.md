@@ -226,6 +226,26 @@ If you want network-wide ad blocking combined with OpenClash bypass routing:
 
 ---
 
+### Step 7: SQM Bufferbloat Elimination & Real-time Bandwidth Monitoring
+
+1. **SQM (Smart Queue Management) with CAKE:**
+   - In LuCI, navigate to **Network** -> **SQM QoS**.
+   - **Interface:** Select `eth0`.
+   - **Download / Upload Speeds:** Set to 90–95% of your measured physical line speeds (e.g. 62000 kbit/s down, 13000 kbit/s up for a 70/15 line).
+   - **Queue Discipline:** Select `cake` and script `piece_of_cake.qos`.
+   - **Benefit:** Completely eliminates loaded ping spikes and bufferbloat under heavy downloads/uploads.
+
+2. **Per-Device Speed Limits (EQOS):**
+   - Navigate to **Network** -> **EQOS**.
+   - View real-time per-host download/upload speeds or set bandwidth caps for specific local IP addresses.
+
+3. **Real-time Performance Dashboards:**
+   - **Bandwidth Accounting:** **Services** -> **Bandwidth Monitor** (`nlbwmon`).
+   - **Sub-second Metrics:** **Services** -> **Netdata**.
+   - **Historical RRD Graphs:** **Statistics** -> **Graphs** (`collectd`).
+
+---
+
 ## 4. Common Pitfalls & Troubleshooting Matrix
 
 | Symptom / Error | Root Cause | Verified Solution |
@@ -234,6 +254,8 @@ If you want network-wide ad blocking combined with OpenClash bypass routing:
 | **Docker Host cannot communicate with ImmortalWrt** | Linux kernel isolation prevents parent interface from talking to child macvlan. | Run the `macvlan-shim` setup script in Step 3. |
 | **Certain devices randomly lose connection or bypass proxy** | Dual DHCP servers active (ISP Modem + ImmortalWrt). | Disable the DHCP server on the ISP modem completely so only ImmortalWrt issues leases. |
 | **OpenClash shows Core Not Found error** | Custom image missing pre-compiled binary. | This repository (`hasanjws/immortalwrt-gateway`) pre-embeds the latest Mihomo binary in `/etc/openclash/core/`. No manual download is required. |
+| **Discord app hangs on "Connecting..." on mobile** | Cloudflare WARP IP flagged by Discord WAF captcha, or `url-test` selecting WARP over residential VPN. | In Clash config, use `fallback` group with a clean VPN (e.g. ProtonVPN) as primary. Ensure all Discord subdomains (`*.discord.gg`, `*.discordapp.net`) and IP CIDR blocks (`162.159.0.0/16`, `66.22.192.0/18`) are routed to the proxy group. |
+| **EQOS bandwidth limit not taking effect in Docker** | EQOS script hardcoded to look for `br-lan`. | Ensure `/usr/sbin/eqos` uses `dev=$(uci -q get network.lan.device || echo eth0)`. Pre-configured automatically in this image. |
 | **DNS Leaks on Mobile (iOS / Android)** | IPv6 DNS bypass or fallback to cellular DNS. | In ImmortalWrt, disable IPv6 DNS advertising (`IPv6 assignment: disabled` or uncheck IPv6 DHCP on LAN), and enforce Fake-IP TUN mode. |
 | **Video streaming buffers or stalls over proxies** | QUIC protocol (UDP 443) connection drops. | Add rule `AND,((DST-PORT,443),(NETWORK,UDP)),REJECT` to force standard HTTP/2 TCP fallback. |
 
