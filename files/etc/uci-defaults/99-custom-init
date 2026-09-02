@@ -47,6 +47,12 @@ chmod -R 755 /etc/openclash
 #     uci commit openclash
 # fi
 
+# Disable unconditional dnsmasq DNS hijack so blacklisted devices resolve DNS cleanly
+if [ -f /etc/config/dhcp ]; then
+    uci -q set dhcp.@dnsmasq[0].dns_redirect='0'
+    uci commit dhcp
+fi
+
 # TurboACC default setup (if available)
 if [ -f /etc/config/turboacc ]; then
     uci set turboacc.config.bbr_cca='1'
