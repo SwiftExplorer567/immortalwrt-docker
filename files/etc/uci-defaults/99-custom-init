@@ -1,6 +1,37 @@
 #!/bin/sh
 # Custom initial configuration script for ImmortalWrt Docker Gateway
-# Executed once on first boot
+# Executed by /sbin/init on boot
+
+# 1. Essential runtime directories & permissions (always runs)
+mkdir -p /etc/openclash/core /etc/openclash/config /etc/openclash/backup
+chmod -R 755 /etc/openclash
+
+# 2. Always symlink OpenClash backup to persistent config so restores NEVER overwrite user settings
+if [ -f /etc/config/openclash ]; then
+    ln -sf /etc/config/openclash /usr/share/openclash/backup/openclash 2>/dev/null || true
+fi
+
+# 3. Patch EQOS to support container interfaces dynamically
+if [ -f /usr/sbin/eqos ]; then
+    sed -i 's/dev=br-lan/dev=$(uci -q get network.lan.device || echo eth0)/g' /usr/sbin/eqos 2>/dev/null || true
+fi
+
+# 4. Patch OpenClash firewall rule ordering so lan_ac_black rules are evaluated BEFORE fakeip_range
+if [ -f /etc/init.d/openclash ]; then
+    sed -i '/meta l4proto {tcp,udp} ip daddr { "$fakeip_range" }/i \      nft '\''add rule inet fw4 openclash_mangle ip saddr @lan_ac_black_ips counter return'\''\n      nft '\''add rule inet fw4 openclash_mangle ether saddr @lan_ac_black_macs counter return'\''' /etc/init.d/openclash 2>/dev/null || true
+fi
+
+# 5. PREVENT OVERWRITING EXISTING USER CONFIGURATIONS:
+# If /etc/config/.initialized exists, the user has already configured this gateway.
+# NEVER overwrite persistent volumes on container updates / recreation by Watchtower!
+if [ -f /etc/config/.initialized ]; then
+    echo "Persistent configuration already initialized. Preserving all existing user settings."
+    exit 0
+fi
+
+# ==============================================================================
+# FIRST-BOOT ONLY DEFAULTS (Only executed once when volume is completely fresh)
+# ==============================================================================
 
 # Timezone & System
 uci set system.@system[0].hostname='ImmortalWrt'
@@ -151,12 +182,8 @@ if [ -f /etc/config/luci_commands ]; then
     uci set luci_commands.@command[-1].name='Network & Connection Info'
     uci set luci_commands.@command[-1].command='echo "Active Connections: $(cat /proc/net/nf_conntrack | wc -l)" && echo "TCP Congestion Control: $(sysctl -n net.ipv4.tcp_congestion_control)"'
     uci commit luci_commands
-fi
-
-# Patch EQOS to support container interfaces (eth0) dynamically instead of hardcoded br-lan
-if [ -f /usr/sbin/eqos ]; then
-    sed -i 's/dev=br-lan/dev=$(uci -q get network.lan.device || echo eth0)/g' /usr/sbin/eqos
-fi
+# Mark persistent volume as initialized on first boot
+touch /etc/config/.initialized
 
 exit 0
 
