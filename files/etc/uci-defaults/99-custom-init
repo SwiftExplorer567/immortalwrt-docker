@@ -72,13 +72,59 @@ if [ -f /etc/init.d/nlbwmon ]; then
     /etc/init.d/nlbwmon enable 2>/dev/null || true
 fi
 if [ -f /etc/init.d/vnstat ]; then
+    uci -q delete vnstat.@vnstat[0].interface
+    uci add_list vnstat.@vnstat[0].interface='eth0'
+    uci commit vnstat
     /etc/init.d/vnstat enable 2>/dev/null || true
 fi
 if [ -f /etc/init.d/collectd ]; then
+    uci -q set luci_statistics.collectd_interface.enable='1'
+    uci -q add_list luci_statistics.collectd_interface.Interfaces='eth0'
+    uci -q set luci_statistics.collectd_ping.enable='1'
+    uci -q add_list luci_statistics.collectd_ping.Hosts='1.1.1.1'
+    uci -q add_list luci_statistics.collectd_ping.Hosts='8.8.8.8'
+    uci -q set luci_statistics.collectd_cpu.enable='1'
+    uci -q set luci_statistics.collectd_memory.enable='1'
+    uci -q set luci_statistics.collectd_load.enable='1'
+    uci commit luci_statistics
     /etc/init.d/collectd enable 2>/dev/null || true
 fi
 if [ -f /etc/init.d/netdata ]; then
     /etc/init.d/netdata enable 2>/dev/null || true
+fi
+
+# SQM Smart Queue Management Default
+if [ -f /etc/init.d/sqm ]; then
+    uci -q delete sqm.eth1
+    uci -q delete sqm.eth0
+    uci set sqm.eth0=queue
+    uci set sqm.eth0.enabled='1'
+    uci set sqm.eth0.interface='eth0'
+    uci set sqm.eth0.download='62000'
+    uci set sqm.eth0.upload='13000'
+    uci set sqm.eth0.qdisc='cake'
+    uci set sqm.eth0.script='piece_of_cake.qos'
+    uci set sqm.eth0.qdisc_advanced='0'
+    uci set sqm.eth0.ingress_ecn='ECN'
+    uci set sqm.eth0.egress_ecn='ECN'
+    uci set sqm.eth0.linklayer='none'
+    uci commit sqm
+    /etc/init.d/sqm enable 2>/dev/null || true
+fi
+
+# Custom Commands Defaults
+if [ -f /etc/config/luci_commands ]; then
+    touch /etc/config/luci_commands
+    uci add luci_commands command
+    uci set luci_commands.@command[-1].name='Flush DNS & Web Cache'
+    uci set luci_commands.@command[-1].command='rm -rf /tmp/luci-* && /etc/init.d/dnsmasq restart && /etc/init.d/rpcd restart && echo Cache Cleared!'
+    uci add luci_commands command
+    uci set luci_commands.@command[-1].name='Restart OpenClash'
+    uci set luci_commands.@command[-1].command='/etc/init.d/openclash restart && echo OpenClash Restarted!'
+    uci add luci_commands command
+    uci set luci_commands.@command[-1].name='Network & Connection Info'
+    uci set luci_commands.@command[-1].command='echo "Active Connections: $(cat /proc/net/nf_conntrack | wc -l)" && echo "TCP Congestion Control: $(sysctl -n net.ipv4.tcp_congestion_control)"'
+    uci commit luci_commands
 fi
 
 # Patch EQOS to support container interfaces (eth0) dynamically instead of hardcoded br-lan
@@ -87,5 +133,6 @@ if [ -f /usr/sbin/eqos ]; then
 fi
 
 exit 0
+
 
 
