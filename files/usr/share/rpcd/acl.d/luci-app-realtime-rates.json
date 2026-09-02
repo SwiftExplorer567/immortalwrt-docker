@@ -1,0 +1,14 @@
+{
+	"luci-app-realtime-rates": {
+		"description": "Grant access for realtime rate view",
+		"read": {
+			"cgi-io": [ "exec" ],
+			"file": {
+				"/usr/libexec/nlbwmon-action download *": [ "exec" ]
+			},
+			"ubus": {
+				"luci-rpc": [ "getHostHints" ]
+			}
+		}
+	}
+}
