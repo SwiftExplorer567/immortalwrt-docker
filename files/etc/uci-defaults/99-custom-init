@@ -50,7 +50,22 @@ chmod -R 755 /etc/openclash
 # Disable unconditional dnsmasq DNS hijack so blacklisted devices resolve DNS cleanly
 if [ -f /etc/config/dhcp ]; then
     uci -q set dhcp.@dnsmasq[0].dns_redirect='0'
+    uci -q set dhcp.lan.ra='disabled'
+    uci -q set dhcp.lan.dhcpv6='disabled'
+    uci -q delete dhcp.lan.ndp
     uci commit dhcp
+fi
+
+if [ -f /etc/config/network ]; then
+    uci -q delete network.lan.ip6assign
+    uci commit network
+fi
+
+# Firewall flow offload: software on, hardware off for Raspberry Pi 5
+if [ -f /etc/config/firewall ]; then
+    uci -q set firewall.@defaults[0].flow_offloading='1'
+    uci -q set firewall.@defaults[0].flow_offloading_hw='0'
+    uci commit firewall
 fi
 
 # TurboACC default setup (if available)
