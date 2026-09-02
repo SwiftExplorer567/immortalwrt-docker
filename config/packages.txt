@@ -69,6 +69,8 @@ luci-i18n-nlbwmon-tr
 luci-app-eqos
 luci-app-statistics
 luci-i18n-statistics-tr
+collectd-mod-ping
+collectd-mod-rrdtool
 luci-app-vnstat2
 luci-i18n-vnstat2-tr
 luci-app-netdata
