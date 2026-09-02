@@ -74,6 +74,7 @@ fi
 if [ -f /etc/init.d/vnstat ]; then
     uci -q delete vnstat.@vnstat[0].interface
     uci add_list vnstat.@vnstat[0].interface='eth0'
+    uci add_list vnstat.@vnstat[0].interface='utun'
     uci commit vnstat
     /etc/init.d/vnstat enable 2>/dev/null || true
 fi
