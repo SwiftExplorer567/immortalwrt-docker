@@ -13,18 +13,28 @@ start_qos() {
 	local dl=$1
 	local up=$2
 	
-	# Egress on eth0 (Download to LAN clients)
+	# 1. Egress on eth0 (Download shaping)
 	tc qdisc add dev $dev root handle 1: htb default 1
-	tc class add dev $dev parent 1: classid 1:1 htb rate ${dl}mbit ceil ${dl}mbit
+	tc class add dev $dev parent 1: classid 1:1 htb rate 1000mbit
+	# Global default download class for LAN clients (prio 10)
+	tc class add dev $dev parent 1:1 classid 1:2 htb rate ${dl}mbit ceil ${dl}mbit
+	tc filter add dev $dev parent 1:0 protocol ip prio 10 u32 match ip dst 192.168.0.0/16 flowid 1:2
+	tc filter add dev $dev parent 1:0 protocol ip prio 10 u32 match ip dst 10.0.0.0/8 flowid 1:2
+	tc filter add dev $dev parent 1:0 protocol ip prio 10 u32 match ip dst 172.16.0.0/12 flowid 1:2
 	
-	# Ingress on eth0 redirected to IFB
+	# 2. Ingress on eth0 redirected to IFB (Upload shaping)
 	ip link add dev ${dev}-ifb name ${dev}-ifb type ifb 2>/dev/null || true
 	ip link set dev ${dev}-ifb up
 	
-	# Default class on IFB must be download rate so incoming internet download is not choked to upload rate!
 	tc qdisc add dev ${dev}-ifb root handle 1: htb default 1
-	tc class add dev ${dev}-ifb parent 1: classid 1:1 htb rate ${dl}mbit ceil ${dl}mbit
+	tc class add dev ${dev}-ifb parent 1: classid 1:1 htb rate 1000mbit
+	# Global default upload class for LAN clients (prio 10)
+	tc class add dev ${dev}-ifb parent 1:1 classid 1:2 htb rate ${up}mbit ceil ${up}mbit
+	tc filter add dev ${dev}-ifb parent 1:0 protocol ip prio 10 u32 match ip src 192.168.0.0/16 flowid 1:2
+	tc filter add dev ${dev}-ifb parent 1:0 protocol ip prio 10 u32 match ip src 10.0.0.0/8 flowid 1:2
+	tc filter add dev ${dev}-ifb parent 1:0 protocol ip prio 10 u32 match ip src 172.16.0.0/12 flowid 1:2
 	
+	# Redirect eth0 ingress to IFB
 	tc qdisc add dev $dev ingress
 	tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ${dev}-ifb
 }
@@ -44,11 +54,13 @@ case "$1" in
 		
 		cnt=$(tc class show dev $dev | wc -l)
 		
+		# Specific device download override (prio 1)
 		tc class add dev $dev parent 1:1 classid 1:1$cnt htb rate ${dl}mbit ceil ${dl}mbit
-		tc filter add dev $dev parent 1:0 protocol ip u32 match ip dst $ip flowid 1:1$cnt
+		tc filter add dev $dev parent 1:0 protocol ip prio 1 u32 match ip dst $ip flowid 1:1$cnt
 		
+		# Specific device upload override (prio 1)
 		tc class add dev ${dev}-ifb parent 1:1 classid 1:1$cnt htb rate ${up}mbit ceil ${up}mbit
-		tc filter add dev ${dev}-ifb parent 1:0 protocol ip u32 match ip src $ip flowid 1:1$cnt
+		tc filter add dev ${dev}-ifb parent 1:0 protocol ip prio 1 u32 match ip src $ip flowid 1:1$cnt
 	;;
 	*)
 		echo "Usage: $0 {start|stop|add}"
