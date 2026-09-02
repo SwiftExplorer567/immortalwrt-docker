@@ -67,4 +67,19 @@ if [ -f /etc/config/uhttpd ]; then
     /etc/init.d/uhttpd enable 2>/dev/null || true
 fi
 
+# Bandwidth & Monitoring Services setup
+if [ -f /etc/init.d/nlbwmon ]; then
+    /etc/init.d/nlbwmon enable 2>/dev/null || true
+fi
+if [ -f /etc/init.d/vnstat ]; then
+    /etc/init.d/vnstat enable 2>/dev/null || true
+fi
+if [ -f /etc/init.d/collectd ]; then
+    /etc/init.d/collectd enable 2>/dev/null || true
+fi
+if [ -f /etc/init.d/netdata ]; then
+    /etc/init.d/netdata enable 2>/dev/null || true
+fi
+
 exit 0
+

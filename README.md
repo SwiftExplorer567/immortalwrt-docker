@@ -150,8 +150,9 @@ graph LR
 
 * **Web Management & Themes:** `luci`, `luci-compat`, `luci-ssl-openssl`, `luci-theme-argon`, `luci-app-argon-config`, `luci-i18n-base-tr`.
 * **Proxy & Transparent Routing:** `luci-app-openclash`, `mihomo` (embedded latest Meta core), `dnsmasq-full`, `kmod-tun`, `bash`, `curl`, `ca-bundle`.
-* **VPN & Networking:** `luci-proto-wireguard`, `wireguard-tools`, `kmod-wireguard`, `kmod-tcp-bbr`, `kmod-nft-core`, `kmod-nft-nat`, `nftables`, `luci-app-ddns`.
-* **Diagnostics & Monitoring:** `luci-app-ttyd` (Web Terminal), `luci-app-nlbwmon` (Bandwidth monitor), `bind-dig`, `iperf3`, `htop`, `nano`.
+* **VPN & Networking:** `luci-proto-wireguard`, `wireguard-tools`, `kmod-wireguard`, `kmod-tcp-bbr`, `kmod-nft-core`, `kmod-nft-nat`, `nftables`, `luci-app-ddns`, `luci-app-upnp`, `luci-app-wol`.
+* **Real-time Traffic & Bandwidth Monitoring:** `luci-app-nlbwmon` (Netlink Bandwidth Monitor per IP), `luci-app-eqos` (Per-host realtime speed monitor & rate limiting), `luci-app-statistics` (Collectd system & network graphs), `luci-app-vnstat2` (Traffic history & live meter), `luci-app-netdata` (High-speed interactive real-time dashboard), `luci-app-sqm` (Smart Queue Management).
+* **CLI Diagnostics & Tools:** `luci-app-ttyd` (Web Terminal), `iftop` (Realtime per-host bandwidth CLI), `bmon` (Realtime bandwidth grapher CLI), `tcpdump` (Packet capture), `bind-dig`, `iperf3`, `htop`, `nano`.
 
 ---
 
