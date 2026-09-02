@@ -34,9 +34,18 @@ uci set firewall.@zone[0].forward='ACCEPT'
 uci set firewall.@zone[0].masq='1'
 uci commit firewall
 
-# OpenClash directories & permissions
+# OpenClash directories, permissions & Access Control defaults
 mkdir -p /etc/openclash/core /etc/openclash/config /etc/openclash/backup
 chmod -R 755 /etc/openclash
+# To exclude specific devices from OpenClash proxy (bypass), uncomment and set your IPs/MACs:
+# if [ -f /etc/config/openclash ]; then
+#     uci -q set openclash.config.lan_ac_mode='0'
+#     uci -q delete openclash.config.lan_ac_black_ips
+#     uci -q delete openclash.config.lan_ac_black_macs
+#     uci -q add_list openclash.config.lan_ac_black_ips='192.168.1.100'
+#     uci -q add_list openclash.config.lan_ac_black_macs='AA:BB:CC:DD:EE:FF'
+#     uci commit openclash
+# fi
 
 # TurboACC default setup (if available)
 if [ -f /etc/config/turboacc ]; then
