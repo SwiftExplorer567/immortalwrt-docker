@@ -81,5 +81,11 @@ if [ -f /etc/init.d/netdata ]; then
     /etc/init.d/netdata enable 2>/dev/null || true
 fi
 
+# Patch EQOS to support container interfaces (eth0) dynamically instead of hardcoded br-lan
+if [ -f /usr/sbin/eqos ]; then
+    sed -i 's/dev=br-lan/dev=$(uci -q get network.lan.device || echo eth0)/g' /usr/sbin/eqos
+fi
+
 exit 0
+
 
